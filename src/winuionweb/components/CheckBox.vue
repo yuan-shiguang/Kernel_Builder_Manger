@@ -22,6 +22,8 @@
 </template>
 
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { computed, getCurrentInstance, ref, useAttrs, watch } from 'vue';
 import { resolveXamlHandler, resolveXamlValue } from './xamlRuntime';
 

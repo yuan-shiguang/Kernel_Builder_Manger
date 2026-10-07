@@ -1,6 +1,6 @@
 //! 网络层：带进度事件与镜像回退的下载器 + 归档解压 + GitHub API
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use futures_util::StreamExt;
 use tauri::{AppHandle, Emitter};
@@ -192,7 +192,7 @@ pub fn extract_tar_gz_strip(
         ar.unpack(dest).map_err(|e| format!("解压失败：{e}"))?;
         return Ok(());
     }
-    use std::io::Read;
+    use std::io::{Read, Write};
     for entry in ar.entries().map_err(|e| format!("读取归档失败：{e}"))? {
         let mut entry = entry.map_err(|e| format!("读取条目失败：{e}"))?;
         let path = entry

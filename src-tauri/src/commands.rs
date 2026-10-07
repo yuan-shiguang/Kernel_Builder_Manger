@@ -3,7 +3,7 @@
 use std::path::{Path, PathBuf};
 
 use serde_json::Value as JsonValue;
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager, State};
 
 use crate::bootstrap::{self, BootstrapReport};
 use crate::config;
@@ -43,9 +43,9 @@ pub fn reset_config(app: AppHandle) -> R<AppConfig> {
 }
 
 #[tauri::command]
-pub fn bootstrap_now(app: AppHandle, force: bool) -> BootstrapReport {
+pub async fn bootstrap_now(app: AppHandle, force: bool) -> BootstrapReport {
     let cfg = app.state::<AppState>().config_snapshot();
-    bootstrap::run(&app, &cfg, force)
+    bootstrap::run(&app, &cfg, force).await
 }
 
 #[tauri::command]
@@ -204,18 +204,25 @@ pub fn toolchain_plan(app: AppHandle, state: State<'_, AppState>) -> ToolchainPl
 }
 
 #[tauri::command]
-pub fn toolchain_install(app: AppHandle, state: State<'_, AppState>, id: String) -> R<String> {
+pub async fn toolchain_install(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    id: String,
+) -> R<String> {
     let cfg = state.config_snapshot();
     let item = toolchain::list_all(&cfg)
         .into_iter()
         .find(|i| i.id == id)
         .ok_or_else(|| format!("未找到工具链：{id}"))?;
 
-    toolchain::install(&app, &cfg, &item)
+    toolchain::install(&app, &cfg, &item).await
 }
 
 #[tauri::command]
-pub fn toolchain_install_missing(app: AppHandle, state: State<'_, AppState>) -> R<Vec<String>> {
+pub async fn toolchain_install_missing(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> R<Vec<String>> {
     let cfg = state.config_snapshot();
     let version = if cfg.general.kernel_dir.is_empty() {
         String::new()
@@ -225,7 +232,7 @@ pub fn toolchain_install_missing(app: AppHandle, state: State<'_, AppState>) -> 
     let plan = toolchain::plan(&cfg, &version);
     let mut ok = Vec::new();
     for item in &plan.missing {
-        match toolchain::install(&app, &cfg, item) {
+        match toolchain::install(&app, &cfg, item).await {
             Ok(p) => ok.push(p),
             Err(e) => log_error(&app, "toolchain", &e),
         }
@@ -303,16 +310,22 @@ pub async fn ksu_branches(
 ) -> R<Vec<GitRefInfo>> {
     let cfg = state.config_snapshot();
     let repo = if repo_override.is_empty() {
-        ksu::provider_by_id(&provider)
+        ksu::find_provider(&provider)
             .map(|p| format!("{}/{}", p.owner, p.repo))
             .ok_or_else(|| format!("未知 provider：{provider}"))?
     } else {
         repo_override
     };
 
-    let mut out = ksu::list_branches(&repo, &cfg.github.token, &cfg.github.api_base).await?;
+    // list_branches / list_tags 需要 owner、repo 分开传
+    let (owner, repo_name) = mirror::normalize_repo(&repo)
+        .ok_or_else(|| format!("仓库地址无效（应为 owner/repo）：{repo}"))?;
+    let mut out =
+        ksu::list_branches(&owner, &repo_name, &cfg.github.token, &cfg.github.api_base).await?;
     if include_tags {
-        if let Ok(tags) = ksu::list_tags(&repo, &cfg.github.token, &cfg.github.api_base).await {
+        if let Ok(tags) =
+            ksu::list_tags(&owner, &repo_name, &cfg.github.token, &cfg.github.api_base).await
+        {
             out.extend(tags);
         }
     }
@@ -329,7 +342,9 @@ pub async fn ksu_fetch(
     repo_override: String,
 ) -> R<String> {
     let cfg = state.config_snapshot();
-    let mut p = ksu::provider_by_id(&provider).ok_or_else(|| format!("未知 provider：{provider}"))?;
+    let mut p = ksu::find_provider(&provider)
+        .cloned()
+        .ok_or_else(|| format!("未知 provider：{provider}"))?;
     if !owner_override.is_empty() {
         p.owner = owner_override;
     }
@@ -393,14 +408,7 @@ pub async fn ksu_download_manager(
     asset: ReleaseAsset,
 ) -> R<String> {
     let cfg = state.config_snapshot();
-    let dest = Path::new(&cfg.general.workspace_dir).join("manager");
-    let mirror_cfg = (
-        &cfg.mirror.mirrors,
-        cfg.mirror.active_id.as_str(),
-        cfg.mirror.enabled,
-        cfg.mirror.auto_fallback,
-    );
-    let path = ksu::download_manager(&app, &asset, &dest, mirror_cfg).await?;
+    let path = ksu::download_manager(&app, &cfg, &asset).await?;
     let _ = config::update(&app, |c| c.ksu.manager_path = path.clone());
     Ok(path)
 }
@@ -420,7 +428,7 @@ pub fn build_preview(state: State<'_, AppState>) -> String {
 }
 
 #[tauri::command]
-pub fn build_start(app: AppHandle, state: State<'_, AppState>) -> R<i32> {
+pub async fn build_start(app: AppHandle, state: State<'_, AppState>) -> R<i32> {
     let cfg = state.config_snapshot();
     if cfg.general.kernel_dir.is_empty() {
         return Err("未选择内核目录".into());
@@ -429,7 +437,7 @@ pub fn build_start(app: AppHandle, state: State<'_, AppState>) -> R<i32> {
     let workspace = Path::new(&cfg.general.workspace_dir);
     let version = kernel::detect(kernel_dir).version;
     let plan = toolchain::plan(&cfg, &version);
-    let (code, _) = crate::build::start(&app, kernel_dir, workspace, &plan, &cfg.build)?;
+    let (code, _) = crate::build::start(&app, kernel_dir, workspace, &plan, &cfg.build).await?;
     Ok(code)
 }
 
@@ -462,7 +470,7 @@ pub fn build_artifacts(state: State<'_, AppState>) -> Vec<ArtifactInfo> {
 
 /// 打包 AnyKernel3（构建成功后单独调用）
 #[tauri::command]
-pub fn build_package(app: AppHandle, state: State<'_, AppState>) -> R<String> {
+pub async fn build_package(app: AppHandle, state: State<'_, AppState>) -> R<String> {
     let cfg = state.config_snapshot();
     if cfg.general.kernel_dir.is_empty() {
         return Err("未选择内核目录".into());
@@ -470,7 +478,7 @@ pub fn build_package(app: AppHandle, state: State<'_, AppState>) -> R<String> {
     let kernel_dir = Path::new(&cfg.general.kernel_dir);
     let workspace = Path::new(&cfg.general.workspace_dir);
     std::fs::create_dir_all(workspace).ok();
-    let p = crate::build::package_anykernel(&app, kernel_dir, workspace, &cfg.build)?;
+    let p = crate::build::package_anykernel(&app, kernel_dir, workspace, &cfg.build).await?;
     let path = p.to_string_lossy().to_string();
     log_success(&app, "build", &format!("刷机包已生成：{path}"));
     Ok(path)

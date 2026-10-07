@@ -8,8 +8,8 @@ use tauri::AppHandle;
 use crate::log::{log_error, log_info, log_success, log_warn};
 use crate::model::{BuildConfig, ToolchainPlan};
 use crate::proc::{cpu_count, run_streamed};
-use crate::mirror::{self, codeload_url};
-use crate::net::{download_any, extract_tar_gz, extract_tar_gz_strip};
+use crate::mirror::codeload_url;
+use crate::net::{download_any, extract_tar_gz_strip};
 
 /// 生成可复现的构建脚本
 pub fn generate_script(
@@ -131,7 +131,7 @@ ls -lh "$OUT/arch/{arch}/boot" 2>/dev/null || true
 }
 
 /// 执行构建
-pub fn start(
+pub async fn start(
     app: &AppHandle,
     kernel_dir: &Path,
     workspace: &Path,
@@ -165,7 +165,7 @@ pub fn start(
     let (code, out) = run_streamed(app, "build", "bash", &args, Some(kernel_dir), &envs)?;
 
     if code == 0 && cfg.package_anykernel {
-        match package_anykernel(app, kernel_dir, workspace, cfg) {
+        match package_anykernel(app, kernel_dir, workspace, cfg).await {
             Ok(p) => log_success(app, "build", &format!("刷机包已生成：{}", p.display())),
             Err(e) => log_warn(app, "build", &format!("AnyKernel3 打包失败：{e}")),
         }
@@ -180,7 +180,7 @@ pub fn start(
 }
 
 /// AnyKernel3 打包（构建成功后单独调用，或在 build_start 内自动触发）
-pub fn package_anykernel(
+pub async fn package_anykernel(
     app: &AppHandle,
     kernel_dir: &Path,
     workspace: &Path,
@@ -192,7 +192,7 @@ pub fn package_anykernel(
     if !ak_dir.exists() {
         let urls = vec![codeload_url(&cfg.anykernel_repo, "master")];
         log_info(app, "build", "下载 AnyKernel3 …");
-        download_any(app, "ak3", "AnyKernel3", &urls, &tmp)?;
+        download_any(app, "ak3", "AnyKernel3", &urls, &tmp).await?;
         std::fs::create_dir_all(&ak_dir).ok();
         if extract_tar_gz_strip(&tmp, &ak_dir, 1).is_err() {
             let _ = std::fs::remove_dir_all(&ak_dir);

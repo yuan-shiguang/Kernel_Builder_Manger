@@ -24,6 +24,8 @@ export default { Visualizer: RefreshContainerVisualizer, Content: RefreshContain
 </script>
 
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { cloneVNode, computed, defineComponent, getCurrentInstance, h, ref, useAttrs, useSlots } from 'vue'
 import type { Component, VNode } from 'vue'
 import { resolveXamlHandler, resolveXamlValue } from './xamlRuntime'

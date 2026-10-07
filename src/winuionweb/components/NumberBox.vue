@@ -56,6 +56,8 @@
 </template>
 
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { computed, getCurrentInstance, inject, nextTick, onBeforeUnmount, onMounted, ref, useAttrs, watch } from 'vue';
 import type { ComputedRef, CSSProperties } from 'vue';
 import TextBox from './TextBox.vue';

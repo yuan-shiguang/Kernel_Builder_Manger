@@ -126,6 +126,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { computed, defineComponent, Fragment, getCurrentInstance, h, nextTick, onBeforeUnmount, onMounted, provide, ref, shallowRef, toRaw, useAttrs, useSlots, watch } from 'vue';
 import type { CSSProperties } from 'vue';
 import ScrollViewer from './ScrollViewer.vue';

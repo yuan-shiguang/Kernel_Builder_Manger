@@ -15,6 +15,8 @@ export default { Content: RefreshVisualizerContent }
 </script>
 
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { computed, defineComponent, h, useSlots, watch } from 'vue'
 import type { VNode } from 'vue'
 

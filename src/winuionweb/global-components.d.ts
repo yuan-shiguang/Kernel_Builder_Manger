@@ -1,0 +1,160 @@
+/**
+ * WinUIonWeb 全局组件类型声明
+ * ------------------------------------------------------------------
+ * 本文件由 scripts/gen-global-components.mjs 自动生成，请勿手改。
+ * 新增/重命名控件后重新运行该脚本即可。
+ *
+ * registerWinUI() 通过 app.component() 注册了全部控件（含 `Grid.RowDefinitions`
+ * 这类 XAML 风格的点号名）。把注册结果同步到 vue 的 GlobalComponents，
+ * vue-tsc / Volar 才能在模板里解析这些标签。
+ *
+ * 统一声明为 any：这些控件的 props 大量使用 XAML 风格命名与动态属性元素，
+ * 严格类型会引入大量噪音，且运行时本身不做类型校验。
+ */
+declare module 'vue' {
+  export interface GlobalComponents {
+    AnimatedVisualPlayer: any;
+    AnnotatedScrollBar: any;
+    AppBarButton: any;
+    AppBarSeparator: any;
+    AppBarToggleButton: any;
+    AutoSuggestBox: any;
+    Border: any;
+    BreadcrumbBar: any;
+    Button: any;
+    'Button.Flyout': any;
+    CalendarDatePicker: any;
+    CalendarView: any;
+    Canvas: any;
+    CaptureElement: any;
+    Case: any;
+    CheckBox: any;
+    CollectionLayout: any;
+    ColorPicker: any;
+    ColumnDefinition: any;
+    ComboBox: any;
+    CommandBar: any;
+    CommandBarFlyout: any;
+    ContentDialog: any;
+    ContentPresenter: any;
+    ControlExample: any;
+    ControlExampleBase: any;
+    DataTemplate: any;
+    DatePicker: any;
+    DropDownButton: any;
+    'DropDownButton.Content': any;
+    'DropDownButton.Flyout': any;
+    Expander: any;
+    'Expander.Content': any;
+    'Expander.Description': any;
+    'Expander.Header': any;
+    'Expander.HeaderControls': any;
+    'Expander.HeaderIcon': any;
+    ExpanderBase: any;
+    FlipView: any;
+    'FlipView.ItemTemplate': any;
+    Flyout: any;
+    FlyoutAnimation: any;
+    FontIcon: any;
+    Grid: any;
+    'Grid.ColumnDefinitions': any;
+    'Grid.RowDefinitions': any;
+    GridColumnDefinitions: any;
+    GridDefinitions: any;
+    GridRowDefinitions: any;
+    GridView: any;
+    'GridView.ItemsPanel': any;
+    'GridView.ItemTemplate': any;
+    HorizontalScrollContainer: any;
+    HyperlinkButton: any;
+    Image: any;
+    InfoBadge: any;
+    InfoBar: any;
+    ItemsPanelTemplate: any;
+    ItemsRepeater: any;
+    'ItemsRepeater.ItemTemplate': any;
+    ItemsStackPanel: any;
+    ItemsView: any;
+    'ItemsView.ItemTemplate': any;
+    ItemsWrapGrid: any;
+    ListBox: any;
+    ListView: any;
+    'ListView.ItemsPanel': any;
+    'ListView.ItemTemplate': any;
+    MediaPlayerElement: any;
+    MenuBar: any;
+    MenuFlyout: any;
+    MenuFlyoutItem: any;
+    'MenuFlyoutItem.Icon': any;
+    NavigationView: any;
+    NumberBox: any;
+    Page: any;
+    PageHeader: any;
+    ParallaxView: any;
+    PasswordBox: any;
+    PersonPicture: any;
+    PickerColumn: any;
+    PipsPager: any;
+    Pivot: any;
+    PivotItem: any;
+    Popup: any;
+    ProgressBar: any;
+    ProgressRing: any;
+    PullToRefresh: any;
+    RadioButton: any;
+    RadioButtons: any;
+    Rating: any;
+    Rectangle: any;
+    RefreshContainer: any;
+    RefreshVisualizer: any;
+    RelativePanel: any;
+    RepeatButton: any;
+    RichEditBox: any;
+    RichTextBlock: any;
+    RowDefinition: any;
+    ScrollBar: any;
+    ScrollView: any;
+    ScrollViewer: any;
+    SelectorBar: any;
+    SelectorBarItem: any;
+    SemanticZoom: any;
+    Setter: any;
+    SettingsCard: any;
+    Slider: any;
+    SplitButton: any;
+    'SplitButton.Flyout': any;
+    SplitView: any;
+    StackLayout: any;
+    StackPanel: any;
+    Style: any;
+    SwipeControl: any;
+    SwitchPresenter: any;
+    SymbolIcon: any;
+    SymbolIconSource: any;
+    TeachingTip: any;
+    'TeachingTip.Content': any;
+    'TeachingTip.HeroContent': any;
+    'TeachingTip.IconSource': any;
+    TextBlock: any;
+    TextBox: any;
+    ThemeWrapper: any;
+    TimePicker: any;
+    TitleBar: any;
+    ToggleButton: any;
+    ToggleSplitButton: any;
+    'ToggleSplitButton.Flyout': any;
+    ToggleSwitch: any;
+    ToolTip: any;
+    ToolTipService: any;
+    'ToolTipService.ToolTip': any;
+    TreeView: any;
+    'TreeView.ItemTemplate': any;
+    TypographyRow: any;
+    UniformGridLayout: any;
+    VariableSizedWrapGrid: any;
+    Viewbox: any;
+    VirtualizingStackPanel: any;
+  }
+}
+
+export {};

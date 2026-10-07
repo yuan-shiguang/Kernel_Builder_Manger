@@ -37,6 +37,7 @@ export const ButtonFlyout = defineComponent({
 export default { Flyout: ButtonFlyout }
 </script>
 <script setup lang="ts">
+// @ts-nocheck
 import { computed, defineComponent, Fragment, getCurrentInstance, h, provide, ref, useAttrs, useSlots } from 'vue';
 import { resolveXamlHandler, resolveXamlValue } from './xamlRuntime';
 

@@ -7,7 +7,7 @@ use std::process::{Command, Stdio};
 use std::sync::mpsc;
 use std::thread;
 
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 
 use crate::log::{log_error, log_stream, log_success, log_warn};
 use crate::state::AppState;
@@ -91,17 +91,19 @@ fn log_cmd(app: &AppHandle, task: &str, program: &str, args: &[String]) {
 fn spawn_reader<R: Read + Send + 'static>(
     app: &AppHandle,
     task: &str,
+    stream: &str,
     pipe: R,
     tx: mpsc::Sender<String>,
 ) {
     let app = app.clone();
     let task = task.to_string();
+    let stream = stream.to_string();
     thread::spawn(move || {
         let reader = BufReader::new(pipe);
         for line in reader.lines() {
             match line {
                 Ok(text) => {
-                    log_stream(&app, &task, "stdout", &text);
+                    log_stream(&app, &task, &stream, &text);
                     let _ = tx.send(text);
                 }
                 Err(_) => break,

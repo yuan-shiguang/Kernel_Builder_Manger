@@ -40,6 +40,8 @@ export default {
 </script>
 
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { computed, defineComponent, Fragment, h, provide, shallowReactive, useSlots, getCurrentInstance } from 'vue'
 import ControlExampleBase from './ControlExampleBase.vue'
 import { getControlExampleProperty, type ControlExamplePropertyName } from './ControlExampleProperties'

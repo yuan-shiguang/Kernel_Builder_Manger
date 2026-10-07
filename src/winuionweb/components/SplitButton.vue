@@ -44,6 +44,8 @@ export const SplitButtonFlyout = defineComponent({
 export default { Flyout: SplitButtonFlyout }
 </script>
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { ref, computed, defineComponent, Fragment, getCurrentInstance, h, onBeforeUnmount, onMounted, provide, useAttrs, useSlots } from 'vue';
 import Button from './Button.vue';
 import MenuFlyout from './MenuFlyout.vue';

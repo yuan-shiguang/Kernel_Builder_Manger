@@ -104,7 +104,10 @@ pub fn list_sources(cfg: &AppConfig) -> Vec<String> {
             if !p.is_dir() {
                 continue;
             }
-            let name = p.file_name().to_string_lossy().to_lowercase();
+            let name = p
+                .file_name()
+                .map(|n| n.to_string_lossy().to_lowercase())
+                .unwrap_or_default();
             if name.contains("susfs") {
                 out.push(p.strip_prefix(&root).unwrap_or(&p).to_string_lossy().to_string());
             }
@@ -165,7 +168,7 @@ pub fn apply_patch_file(
 
         let combined = format!("{out}\n{err}");
         for line in combined.lines().filter(|l| !l.trim().is_empty()) {
-            log_stream(app, "patch", line);
+            log_stream(app, "patch", "stdout", line);
         }
         res.log.push_str(&combined);
         res.method = m.to_string();
@@ -228,7 +231,10 @@ fn collect_rejects(kernel_dir: &Path) -> Vec<RejectInfo> {
         for e in rd.flatten() {
             let p = e.path();
             if p.is_dir() {
-                let n = p.file_name().to_string_lossy().to_string();
+                let n = p
+                    .file_name()
+                    .map(|x| x.to_string_lossy().to_string())
+                    .unwrap_or_default();
                 if !matches!(n.as_str(), ".git" | "out" | "node_modules") {
                     stack.push(p);
                 }

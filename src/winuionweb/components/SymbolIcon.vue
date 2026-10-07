@@ -1,6 +1,8 @@
 <template><span class="win-symbol-icon" v-bind="attrs" :style="iconStyle">{{ glyph }}</span></template>
 
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { computed, getCurrentInstance, useAttrs } from 'vue'
 import { resolveXamlValue } from './xamlRuntime'
 

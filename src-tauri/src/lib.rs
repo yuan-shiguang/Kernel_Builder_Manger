@@ -1,4 +1,9 @@
 //! Kernel Builder Manager —— Tauri 2.0 后端入口
+//!
+//! 本 crate 同时产出 staticlib / cdylib / rlib，但实际只作为桌面应用使用，
+//! 各模块中保留了若干暂未接线的工具函数（镜像 URL 构造、分支探测、
+//! defconfig 解析等）供后续扩展。这里统一关闭 dead_code 提示以免淹没真正的告警。
+#![allow(dead_code)]
 
 mod bootstrap;
 mod build;
@@ -19,8 +24,6 @@ mod toolchain;
 
 use std::time::Duration;
 
-use tauri::Manager;
-
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -34,10 +37,11 @@ pub fn run() {
             // 读取（或创建）配置
             let cfg = config::load(&handle);
 
-            // 首次初始化放到后台线程，前端有足够时间订阅日志事件
+            // 首次初始化放到后台线程，前端有足够时间订阅日志事件。
+            // 这里用独立 OS 线程（无 tokio 上下文），可安全地阻塞等待异步初始化。
             std::thread::spawn(move || {
                 std::thread::sleep(Duration::from_millis(1200));
-                bootstrap::ensure(&handle, &cfg);
+                tauri::async_runtime::block_on(bootstrap::ensure(&handle, &cfg));
             });
 
             Ok(())

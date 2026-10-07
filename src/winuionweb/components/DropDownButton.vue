@@ -39,6 +39,8 @@ export default {
 }
 </script>
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { computed, defineComponent, Fragment, getCurrentInstance, h, ref, useAttrs, useSlots } from 'vue';
 import MenuFlyout from './MenuFlyout.vue';
 import { getDropDownButtonProperty } from './DropDownButtonProperties';

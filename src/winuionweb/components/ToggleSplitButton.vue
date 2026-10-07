@@ -33,6 +33,8 @@ export default { Flyout: ToggleSplitButtonFlyout }
 </script>
 
 <script setup lang="ts">
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { computed, defineComponent, Fragment, getCurrentInstance, h, provide, ref, useAttrs, useSlots, watch, type VNode } from 'vue';
 import SplitButton from './SplitButton.vue';
 import { resolveXamlHandler, resolveXamlValue, updateXamlBinding, xamlScopeKey } from './xamlRuntime';

@@ -68,6 +68,7 @@ jobs:
             libssl-dev \
             build-essential \
             curl wget file patchelf \
+            libfuse2 \
             rpm
 
       - name: 安装 Node.js
@@ -88,9 +89,8 @@ jobs:
       - name: 安装前端依赖
         run: npm ci
 
-      - name: 前端类型检查（不阻断构建）
+      - name: 前端类型检查
         run: npm run type-check
-        continue-on-error: true
 
       - name: 构建 Tauri 应用
         uses: tauri-apps/tauri-action@v0

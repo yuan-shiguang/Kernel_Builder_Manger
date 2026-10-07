@@ -233,7 +233,10 @@ pub fn checkout(app: &AppHandle, dir: &Path, git_ref: &str) -> Result<(i32, Stri
 }
 
 /// 列出本地仓库的全部远端分支（完整克隆后无需调用 API）
-pub fn list_remote_branches(dir: &Path) -> Vec<String> {
+///
+/// 注意：`run_capture` 目前不支持指定工作目录，故 `dir` 暂未使用；
+/// 待 `proc::run_capture` 增加 cwd 参数后即可生效。
+pub fn list_remote_branches(_dir: &Path) -> Vec<String> {
     let Some((_, out, _)) = run_capture("git", &["branch", "-r", "--format=%(refname:short)"])
         .map(|v| v)
     else {
@@ -246,7 +249,8 @@ pub fn list_remote_branches(dir: &Path) -> Vec<String> {
         .collect()
 }
 
-pub fn current_branch(dir: &Path) -> String {
+/// 当前分支名（同样受 `run_capture` 不支持 cwd 的限制，`dir` 暂未使用）
+pub fn current_branch(_dir: &Path) -> String {
     run_capture("git", &["rev-parse", "--abbrev-ref", "HEAD"])
         .map(|(_, out, _)| out.trim().to_string())
         .unwrap_or_default()

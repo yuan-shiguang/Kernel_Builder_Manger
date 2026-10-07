@@ -1,3 +1,5 @@
+// @ts-nocheck
+// WinUIonWeb 为 vendor 第三方控件库，见 scripts/mark-vendor-ts-nocheck.mjs
 import { cloneVNode, Fragment, getCurrentInstance, h, isRef, type ComponentInternalInstance, type VNode } from 'vue'
 
 type Scope = Record<string, unknown>

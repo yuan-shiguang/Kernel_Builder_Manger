@@ -22,7 +22,7 @@ pub struct BootstrapReport {
 }
 
 /// 执行初始化。force=true 时即使已初始化也会重跑工具链检查
-pub fn run(app: &AppHandle, cfg: &AppConfig, force: bool) -> BootstrapReport {
+pub async fn run(app: &AppHandle, cfg: &AppConfig, force: bool) -> BootstrapReport {
     let mut report = BootstrapReport {
         workspace: cfg.general.workspace_dir.clone(),
         created_dirs: vec![],
@@ -82,7 +82,7 @@ pub fn run(app: &AppHandle, cfg: &AppConfig, force: bool) -> BootstrapReport {
             continue;
         }
         log_info(app, "init", &format!("初始化：准备 {}", item.name));
-        match toolchain::install(app, &cfg, &item) {
+        match toolchain::install(app, cfg, &item).await {
             Ok(p) => {
                 report.downloaded.push(format!("{} -> {}", item.name, p));
             }
@@ -113,13 +113,13 @@ pub fn run(app: &AppHandle, cfg: &AppConfig, force: bool) -> BootstrapReport {
 }
 
 /// 仅在未初始化时静默执行（启动时调用）
-pub fn ensure(app: &AppHandle, cfg: &AppConfig) {
+pub async fn ensure(app: &AppHandle, cfg: &AppConfig) {
     if cfg.general.initialized {
         log_info(app, "init", "检测到已初始化，跳过首次引导");
         return;
     }
     log_info(app, "init", "首次启动，开始初始化 …");
-    let report = run(app, cfg, false);
+    let report = run(app, cfg, false).await;
     log_info(
         app,
         "init",

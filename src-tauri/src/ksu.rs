@@ -12,101 +12,111 @@
 //! 本地即拥有全部分支，切换分支无需再次联网，也不受 GitHub API 限流影响。
 
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use tauri::AppHandle;
 
 use crate::git;
-use crate::log::{log_error, log_info, log_stream, log_success, log_warn};
+use crate::log::{log_error, log_info, log_success, log_warn};
 use crate::mirror;
 use crate::model::{AppConfig, GitRefInfo, KsuProvider, KsuStatus, ReleaseAsset};
 use crate::net::{download_to_file, get_json};
 
-pub const PROVIDERS: &[KsuProvider] = &[
-    KsuProvider {
-        id: "kernelsu".into(),
-        name: "KernelSU（官方）".into(),
-        owner: "tiann".into(),
-        repo: "KernelSU".into(),
-        author: "tiann".into(),
-        default_branch: "main".into(),
-        description: "原始项目，metamodule 系统管理模块挂载；GKI 2.0（5.10+），v1.0 后不再支持非 GKI".into(),
-        manager_repo: "tiann/KernelSU".into(),
-        homepage: "https://github.com/tiann/KernelSU".into(),
-    },
-    KsuProvider {
-        id: "next".into(),
-        name: "KernelSU-Next".into(),
-        owner: "rifsxd".into(),
-        repo: "KernelSU-Next".into(),
-        author: "rifsxd".into(),
-        default_branch: "next".into(),
-        description: "增强版分支，Magic Mount + OverlayFS 切换，模块备份与自动更新；支持 4.4–6.6（含非 GKI）".into(),
-        manager_repo: "rifsxd/KernelSU-Next".into(),
-        homepage: "https://github.com/rifsxd/KernelSU-Next".into(),
-    },
-    KsuProvider {
-        id: "sukisu-ultra".into(),
-        name: "SukiSU-Ultra".into(),
-        owner: "ShirkNeko".into(),
-        repo: "SukiSU-Ultra".into(),
-        author: "ShirkNeko".into(),
-        default_branch: "main".into(),
-        description: "内核级能力，内置 SUSFS，支持 KPM（内核补丁模块）；原名 MKSU-SKN，从 MKSU 分叉".into(),
-        manager_repo: "ShirkNeko/SukiSU-Ultra".into(),
-        homepage: "https://github.com/ShirkNeko/SukiSU-Ultra".into(),
-    },
-    KsuProvider {
-        id: "bakasu".into(),
-        name: "BakaSU（原 ReSukiSU）".into(),
-        owner: "Baka-SU".into(),
-        repo: "BakaSU".into(),
-        author: "BakaSU Development".into(),
-        default_branch: "main".into(),
-        description: "多管理器支持（KernelSU / MKSU / RKSU / SukiSU），metamodule 系统；从 SukiSU-Ultra 分叉，原名 ReSukiSU".into(),
-        manager_repo: "Baka-SU/BakaSU".into(),
-        homepage: "https://github.com/Baka-SU/BakaSU".into(),
-    },
-    KsuProvider {
-        id: "rsuntk".into(),
-        name: "rsuntk KernelSU".into(),
-        owner: "rsuntk".into(),
-        repo: "KernelSU".into(),
-        author: "rsuntk".into(),
-        default_branch: "main".into(),
-        description: "rsuntk 维护的 KernelSU 分支（Personal fork of KernelSU Project）".into(),
-        manager_repo: "rsuntk/KernelSU".into(),
-        homepage: "https://github.com/rsuntk/KernelSU".into(),
-    },
-    KsuProvider {
-        id: "rsuntk-susfs".into(),
-        name: "rsuntk-SUSFS".into(),
-        owner: "cyberc3dr".into(),
-        repo: "KernelSU".into(),
-        author: "cyberc3dr".into(),
-        default_branch: "main".into(),
-        description: "rsuntk 分支的 SUSFS 整合版本".into(),
-        manager_repo: "cyberc3dr/KernelSU".into(),
-        homepage: "https://github.com/cyberc3dr/KernelSU".into(),
-    },
-    KsuProvider {
-        id: "xxksu".into(),
-        name: "xxKSU".into(),
-        owner: "backslashxx".into(),
-        repo: "KernelSU".into(),
-        author: "backslashxx".into(),
-        default_branch: "main".into(),
-        description: "backslashxx 的 KSU 分支，upstream 兼容驱动（Linux 3.0 – 5.4+）".into(),
-        manager_repo: "backslashxx/KernelSU".into(),
-        homepage: "https://github.com/backslashxx/KernelSU".into(),
-    },
-];
+/// 内置的 KSU 分支清单（OnceLock 惰性初始化一次）。
+///
+/// 不能用 `const`：`KsuProvider` 的字段是 `String`，而 `String::from(&str)`
+/// 不是 const fn，无法在常量上下文里构造。
+fn providers_static() -> &'static Vec<KsuProvider> {
+    static CACHE: OnceLock<Vec<KsuProvider>> = OnceLock::new();
+    CACHE.get_or_init(|| {
+        vec![
+        KsuProvider {
+            id: "kernelsu".into(),
+            name: "KernelSU（官方）".into(),
+            owner: "tiann".into(),
+            repo: "KernelSU".into(),
+            author: "tiann".into(),
+            default_branch: "main".into(),
+            description: "原始项目，metamodule 系统管理模块挂载；GKI 2.0（5.10+），v1.0 后不再支持非 GKI".into(),
+            manager_repo: "tiann/KernelSU".into(),
+            homepage: "https://github.com/tiann/KernelSU".into(),
+        },
+        KsuProvider {
+            id: "next".into(),
+            name: "KernelSU-Next".into(),
+            owner: "rifsxd".into(),
+            repo: "KernelSU-Next".into(),
+            author: "rifsxd".into(),
+            default_branch: "next".into(),
+            description: "增强版分支，Magic Mount + OverlayFS 切换，模块备份与自动更新；支持 4.4–6.6（含非 GKI）".into(),
+            manager_repo: "rifsxd/KernelSU-Next".into(),
+            homepage: "https://github.com/rifsxd/KernelSU-Next".into(),
+        },
+        KsuProvider {
+            id: "sukisu-ultra".into(),
+            name: "SukiSU-Ultra".into(),
+            owner: "ShirkNeko".into(),
+            repo: "SukiSU-Ultra".into(),
+            author: "ShirkNeko".into(),
+            default_branch: "main".into(),
+            description: "内核级能力，内置 SUSFS，支持 KPM（内核补丁模块）；原名 MKSU-SKN，从 MKSU 分叉".into(),
+            manager_repo: "ShirkNeko/SukiSU-Ultra".into(),
+            homepage: "https://github.com/ShirkNeko/SukiSU-Ultra".into(),
+        },
+        KsuProvider {
+            id: "bakasu".into(),
+            name: "BakaSU（原 ReSukiSU）".into(),
+            owner: "Baka-SU".into(),
+            repo: "BakaSU".into(),
+            author: "BakaSU Development".into(),
+            default_branch: "main".into(),
+            description: "多管理器支持（KernelSU / MKSU / RKSU / SukiSU），metamodule 系统；从 SukiSU-Ultra 分叉，原名 ReSukiSU".into(),
+            manager_repo: "Baka-SU/BakaSU".into(),
+            homepage: "https://github.com/Baka-SU/BakaSU".into(),
+        },
+        KsuProvider {
+            id: "rsuntk".into(),
+            name: "rsuntk KernelSU".into(),
+            owner: "rsuntk".into(),
+            repo: "KernelSU".into(),
+            author: "rsuntk".into(),
+            default_branch: "main".into(),
+            description: "rsuntk 维护的 KernelSU 分支（Personal fork of KernelSU Project）".into(),
+            manager_repo: "rsuntk/KernelSU".into(),
+            homepage: "https://github.com/rsuntk/KernelSU".into(),
+        },
+        KsuProvider {
+            id: "rsuntk-susfs".into(),
+            name: "rsuntk-SUSFS".into(),
+            owner: "cyberc3dr".into(),
+            repo: "KernelSU".into(),
+            author: "cyberc3dr".into(),
+            default_branch: "main".into(),
+            description: "rsuntk 分支的 SUSFS 整合版本".into(),
+            manager_repo: "cyberc3dr/KernelSU".into(),
+            homepage: "https://github.com/cyberc3dr/KernelSU".into(),
+        },
+        KsuProvider {
+            id: "xxksu".into(),
+            name: "xxKSU".into(),
+            owner: "backslashxx".into(),
+            repo: "KernelSU".into(),
+            author: "backslashxx".into(),
+            default_branch: "main".into(),
+            description: "backslashxx 的 KSU 分支，upstream 兼容驱动（Linux 3.0 – 5.4+）".into(),
+            manager_repo: "backslashxx/KernelSU".into(),
+            homepage: "https://github.com/backslashxx/KernelSU".into(),
+        },
+        ]
+    })
+}
 
 pub fn providers() -> Vec<KsuProvider> {
-    PROVIDERS.to_vec()
+    providers_static().clone()
 }
 
 pub fn find_provider(id: &str) -> Option<&'static KsuProvider> {
-    PROVIDERS.iter().find(|p| p.id == id)
+    providers_static().iter().find(|p| p.id == id)
 }
 
 /// 本地缓存目录（一个仓库一份完整克隆）
@@ -196,7 +206,7 @@ pub async fn list_tags(
 /* --------------------------- 集成 --------------------------- */
 
 /// 完整克隆（不浅克隆）并切换到目标分支
-async fn fetch_source(
+pub async fn fetch_source(
     app: &AppHandle,
     cfg: &AppConfig,
     owner: &str,

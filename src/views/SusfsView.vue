@@ -136,6 +136,10 @@
 import { computed, onMounted, ref, watch } from 'vue'
 
 import LogPanel from '@/components/LogPanel.vue'
+// WinUIonWeb 控件在运行时由 registerWinUI() 全局注册，但模板里的点号写法
+// （<Expander.Header>）需要显式 import 才能被类型检查器解析。
+import Expander from '@winui/components/Expander.vue'
+import TextBlock from '@winui/components/TextBlock.vue'
 import { useTask } from '@/composables/useTask'
 import { formatSize, susfsApply, susfsFetch, susfsList } from '@/api/tauri'
 import { config, persist } from '@/stores/settings'
