@@ -47,7 +47,7 @@
         ]
       }
     },
-    "category": "DevelopmentTool",
+    "category": "Developer Tool",
     "shortDescription": "Android 内核构建管理器",
     "longDescription": "基于 Tauri 2.0 / Vue 3 / WinUIonWeb 的 Android 内核构建、补丁与工具链管理器"
   },
