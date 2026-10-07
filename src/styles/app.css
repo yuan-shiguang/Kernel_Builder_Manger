@@ -1,0 +1,267 @@
+/* 应用级布局样式：建立在 WinUIonWeb 的 theme.css 之上 */
+
+:root {
+  --app-radius: 8px;
+  --app-gap: 16px;
+  --mono-font: 'JetBrains Mono', 'Cascadia Code', 'DejaVu Sans Mono', Consolas, monospace;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', 'Noto Sans SC', system-ui, sans-serif;
+  background: var(--SolidBackgroundFillColorBaseBrush, #202020);
+  color: var(--text-primary, #fff);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* WinUIonWeb 的 NavigationView 需要撑满高度 */
+.app-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 24px 28px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 20px;
+}
+
+.section {
+  margin-bottom: 22px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-stroke);
+  border-radius: var(--app-radius, 8px);
+  padding: 16px 18px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+.muted {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.mono {
+  font-family: var(--mono-font, monospace);
+  font-size: 12px;
+}
+
+/* ----------------------------- 日志面板 ----------------------------- */
+
+.log-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 260px;
+  background: var(--ctrl-solid-fill);
+  border: 1px solid var(--card-stroke);
+  border-radius: var(--app-radius, 8px);
+  overflow: hidden;
+}
+
+.log-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--stroke-divider);
+  flex-wrap: wrap;
+}
+
+.log-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  font-family: var(--mono-font, monospace);
+  font-size: 12px;
+  line-height: 1.55;
+  padding: 8px 0;
+}
+
+.log-line {
+  display: flex;
+  gap: 8px;
+  padding: 1px 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.log-line:hover {
+  background: var(--subtle-tertiary);
+}
+
+.log-ts {
+  color: var(--text-disabled);
+  flex: 0 0 auto;
+}
+
+.log-task {
+  flex: 0 0 auto;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--subtle-secondary);
+  color: var(--text-secondary);
+  font-size: 11px;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.log-text {
+  flex: 1;
+}
+
+.log-error {
+  background: var(--SystemFillColorCriticalBackgroundBrush);
+  color: var(--SystemFillColorCriticalBrush);
+  font-weight: 500;
+}
+
+.log-warn {
+  background: var(--SystemFillColorCautionBackgroundBrush);
+  color: var(--SystemFillColorCautionBrush);
+}
+
+.log-success {
+  color: var(--SystemFillColorSuccessBrush);
+  font-weight: 500;
+}
+
+.log-info {
+  color: var(--text-primary);
+}
+
+/* ----------------------------- 通用表格 ----------------------------- */
+
+.kv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.kv-table th,
+.kv-table td {
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--stroke-divider);
+}
+
+.kv-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-ok {
+  background: var(--SystemFillColorSuccessBackgroundBrush);
+  color: var(--SystemFillColorSuccessBrush);
+}
+
+.badge-warn {
+  background: var(--SystemFillColorCautionBackgroundBrush);
+  color: var(--SystemFillColorCautionBrush);
+}
+
+.badge-err {
+  background: var(--SystemFillColorCriticalBackgroundBrush);
+  color: var(--SystemFillColorCriticalBrush);
+}
+
+.badge-mute {
+  background: var(--subtle-secondary);
+  color: var(--text-secondary);
+}
+
+/* ----------------------------- 代码块 ----------------------------- */
+
+.code-block {
+  font-family: var(--mono-font, monospace);
+  font-size: 11.5px;
+  line-height: 1.5;
+  background: var(--ctrl-solid-fill);
+  border: 1px solid var(--card-stroke);
+  border-radius: 6px;
+  padding: 10px 12px;
+  overflow: auto;
+  max-height: 340px;
+  white-space: pre;
+}
+
+.spacer {
+  flex: 1;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ctrl-strong-fill);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

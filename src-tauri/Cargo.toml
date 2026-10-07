@@ -1,0 +1,41 @@
+[package]
+name = "kernel-builder-manager"
+version = "0.1.0"
+description = "Android 内核构建管理器（Tauri 2.0 + Vue 3 + WinUIonWeb）"
+authors = ["Kernel Builder Manager"]
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "kernel_builder_manager_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["devtools"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-shell = "2"
+tauri-plugin-opener = "2"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
+futures-util = "0.3"
+tokio = { version = "1", features = ["fs", "io-util", "macros", "rt-multi-thread", "sync", "time"] }
+
+flate2 = "1"
+tar = "0.4"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true
+
+[profile.dev]
+incremental = true
