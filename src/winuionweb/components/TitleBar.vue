@@ -120,7 +120,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useSlots, watch } from 'vue';
 import TextBlock from './TextBlock.vue';
 import { useI18n } from './i18n/index';
-import { clearIsDragRegion, getIsDragRegion, setIsDragRegion } from './titleBarDragRegion';
+import { clearIsDragRegion, getIsDragRegion, setIsDragRegion } from './TitleBarDragRegion';
 
 const { t } = useI18n();
 const slots = useSlots();
